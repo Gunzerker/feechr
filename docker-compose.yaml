@@ -1,0 +1,61 @@
+#
+version: "3.8"
+services:
+  authentication:
+    build: ./authentication-service
+    ports:
+      - '9000:3030'
+    environment:
+      - DB_LOCATION=sql
+      - DB_USER=db_user
+      - DB_PASSWORD=pwd
+      - DB_NAME=db
+    restart: always
+  posts:
+    build: ./posts-service
+    ports:
+      - '9001:6001'
+    restart: always  
+  club:
+    build: ./club-service
+    ports:
+      - '9002:6002'
+    restart: always  
+  notification:
+    build: ./notification-service
+    ports:
+      - '9003:6006'
+    restart: always      
+  messaging:
+    build: ./messaging-service
+    ports:
+      - '9004:6004'
+    restart: always
+  sync:
+    build: ./sync-service
+    ports:
+      - '9005:6005'
+    restart: always  
+  
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+
+  queue_consumer:
+    build: ./queue_consumer
+    ports:
+      - '9006:80'
+    restart: always
+    depends_on:
+      - rabbitmq
+    links:
+        - rabbitmq
+  events:
+    build: ./events_service
+    ports:
+      - '9007:6003'
+    restart: always  
